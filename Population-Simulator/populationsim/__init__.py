@@ -2,10 +2,13 @@
 Created on Mar 21, 2016
 Module to handle creation of list of pseudo people and run simulations for a given number of steps for those people
 People currently age, partner up, have children, and die
-NYI List:
+NYI/TBD List:
     Re-partnering/Multiple partners
     Additional attributes for people to impact decisions
     More complex matching for potential partners
+    Better handling of deceased people to improve overall performance
+    Genealogical Printouts, IE. seeing a person's full family tree
+    Logging key dates in a person's life; things like partnering dates
     
 @author: Eric Marshall
 '''
@@ -63,7 +66,7 @@ def restoreBackup():
         return 'Successfully backed up people file'
     return 'Failed to backup people file'
 
-
+#Function to empty the person file
 @app.route('/empty', methods=['GET'])
 def emptyPeople():
     logging.info("Emptying person file")
@@ -79,7 +82,7 @@ def backupPeople():
         return 'Successfully backed up people file'
     return 'Failed to backup people file'
     
-    
+#Process a list of people for a single year and return the results    
 def processYear(people):
     logging.info('Processing people')
     logging.debug('Opening file')
@@ -192,14 +195,12 @@ def processSingleYear():
 def processMultipleYears(numYears):
     try:
         people = filemanagement.loadPeopleFile()      
-        print len(people[0].lookupTable)
         for i in range(0,numYears):
             logging.info('Processing year ' + str(i+1))
             people = processYear(people)
         filemanagement.savePeopleFile(people)
     except Exception as e:
         logging.error(e)
-        traceback.print_tb(sys.exc_traceback)
         return 'Failed to process'
     return 'Processed ' + str(numYears) + ' years'
     
