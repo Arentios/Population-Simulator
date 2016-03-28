@@ -237,8 +237,7 @@ def auditPeople():
     deadHappiness = 0
     deadCount = 0
     deadChildren = 0
-    
-   
+    liveHappiness = 0
     originalGeneration = [] #List of people with no parents
     for person in people:
         if len(person.partner) > 1:
@@ -252,12 +251,16 @@ def auditPeople():
             deadHappiness = deadHappiness + person.happiness
             deadCount = deadCount + 1
             deadChildren = deadChildren + len(person.children)
-                         
+        else:
+            liveHappiness = liveHappiness + person.happiness
+    liveCount = len(people) - deadCount
+    returnMessage = returnMessage + 'Number of live people: ' + str(liveCount) + '<br>'                     
     returnMessage = returnMessage + 'Number of dead people: ' + str(deadCount) + '<br>' 
+    returnMessage = returnMessage + 'Average number of children overall: ' + str(children/(len(people))) + '<br>'    
+    returnMessage = returnMessage + 'Average happiness of the living: ' + str(liveHappiness/liveCount) + '<br>' 
     if deadCount > 0:
         returnMessage = returnMessage + 'Average number of children for the dead: ' + str(deadChildren/deadCount) + '<br>' 
         returnMessage = returnMessage + 'Average happiness of the dead: ' + str(deadHappiness/deadCount) + '<br>' 
-    returnMessage = returnMessage + 'Average number of children: ' + str(children/float(len(people))) + '<br>'    
     returnMessage = returnMessage + 'Number of partnered people: ' + str(partners)  + '<br>' 
     
     #Perform a recursive search to find total number of generations
