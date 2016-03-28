@@ -6,6 +6,8 @@ These people can then be run through a given number of steps and will age, partn
 
 Basic settings currently use Flask defaults, so if run from localhost a sample run would be something like:
 
-localhost:5000/generate/500 #Generates 500 people to begin with
-localhost:5000/process/100 #Runs 100 steps, vaguely equivalent to a year
+http://localhost:5000/generate/500 #Generates 500 people to begin with
+
+http://localhost:5000/process/100 #Runs 100 steps, vaguely equivalent to a year
+
 http://localhost:5000/peopleInformation #Reports auditing information such as number of people and and general statistics
