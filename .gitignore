@@ -48,3 +48,6 @@ Temporary Items
 
 # Compiled python files
 .pyc
+
+#Log files
+.log
