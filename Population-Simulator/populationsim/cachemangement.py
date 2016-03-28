@@ -1,6 +1,7 @@
 '''
 Created on Mar 23, 2016
-
+File to handle caching data and session management
+NYI
 @author: Arentios
 '''
 from beaker.cache import CacheManager

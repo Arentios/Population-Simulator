@@ -1,6 +1,6 @@
 '''
 Created on Mar 22, 2016
-
+Module to handle the people file for the people simulator
 @author: Eric Marshall
 '''
 import logging

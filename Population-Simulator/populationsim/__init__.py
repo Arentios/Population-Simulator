@@ -1,10 +1,15 @@
 '''
 Created on Mar 21, 2016
-
+Module to handle creation of list of pseudo people and run simulations for a given number of steps for those people
+People currently age, partner up, have children, and die
+NYI List:
+    Re-partnering/Multiple partners
+    Additional attributes for people to impact decisions
+    More complex matching for potential partners
+    
 @author: Eric Marshall
 '''
 from flask import Flask
-from beaker import cache
 import random
 import pickle
 import sys
@@ -20,7 +25,7 @@ logging.basicConfig(filename=constants.LOG_FILE, level=logging.INFO)
 app = Flask(__name__)
 
 #Class to handle people
-#We used a lookup table (dictionary) to store links to people using UUID to avoid storing direct object links as direct object links lead to a massively recurvise tree that is impossible to save
+#Used a lookup table (dictionary) to store links to people using UUID to avoid storing direct object links as direct object links lead to a massively recurvise tree that is impossible to save
 #This implementation is slightly less performant than using direct object links but only marginally
 class Person:
     lookupTable = {}
