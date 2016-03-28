@@ -67,7 +67,7 @@ def auditPeopleFile():
 
 def emptyPeopleFile():
     try:
-        with open('people.txt', 'w') as output:
+        with open(constants.PEOPLE_FILE, 'w') as output:
             pass
     except Exception as e:
         logging.error(e)

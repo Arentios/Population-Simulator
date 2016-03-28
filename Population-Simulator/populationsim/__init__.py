@@ -138,7 +138,7 @@ def processYear(people):
         #Time for happy thoughts!
         if not person.partner and person.age >= 18 and random.randint(1,100) < person.happiness:
             #TODO: Need better checks here, such as for siblings
-            for prospectivePartner in [x for x in possiblePartners if x.personId not in person.parents and x.personId not in person.children and (len(person.parents) == 0 or set(x.parents) != set(person.parents))  and x.personId != person.personId]:
+            for prospectivePartner in [x for x in possiblePartners if x.personId not in person.parents and x.personId not in person.children and (not person.parents or set(x.parents) != set(person.parents))  and x.personId != person.personId]:
                 #Try to arrange a marriage, mirrored happiness requirements and a 50/50 shot right now
                 #TODO: More attributes matching!
                 if  random.randint(1,100) < prospectivePartner.happiness and random.randint(1,2) > 1:
@@ -222,7 +222,10 @@ def generatePeople(numPeople):
 @app.route('/peopleInformation',methods=['GET'])
 def auditPeople():
     people = filemanagement.loadPeopleFile()         
-    returnMessage = 'Number of people in people file: ' + str(len(people)) + '\n'
+    returnMessage = 'Number of people in people file: ' + str(len(people)) + '<br>'
+    #Nothing more to do if there's nobody in the people file
+    if not people:
+        return returnMessage 
     parents = 0
     partners = 0
     children = 0.0
@@ -230,9 +233,13 @@ def auditPeople():
     deadCount = 0
     deadChildren = 0
     
+   
+    originalGeneration = [] #List of people with no parents
     for person in people:
         if len(person.partner) > 1:
-            print 'More than one partner, whoops'
+            returnMessage = returnMessage + 'Detected multiple partners, should not happen in the current version<br>'
+        if not person.parents:
+            originalGeneration.append(person)
         parents = parents + len(person.parents)
         partners = partners + len(person.partner)
         children = children + len(person.children)
@@ -240,13 +247,30 @@ def auditPeople():
             deadHappiness = deadHappiness + person.happiness
             deadCount = deadCount + 1
             deadChildren = deadChildren + len(person.children)
-    returnMessage = returnMessage + 'Number of dead people: ' + str(deadCount) + '\n' 
-    returnMessage = returnMessage + 'Average number of children for the dead: ' + str(deadChildren/deadCount) + '\n' 
-    returnMessage = returnMessage + 'Average happiness of the dead: ' + str(deadHappiness/deadCount) + '\n' 
-    returnMessage = returnMessage + 'Average number of children: ' + str(children/float(len(people))) + '\n'    
-    returnMessage = returnMessage + 'Number of partnered people: ' + str(partners)  + '\n' 
-        
+                         
+    returnMessage = returnMessage + 'Number of dead people: ' + str(deadCount) + '<br>' 
+    if deadCount > 0:
+        returnMessage = returnMessage + 'Average number of children for the dead: ' + str(deadChildren/deadCount) + '<br>' 
+        returnMessage = returnMessage + 'Average happiness of the dead: ' + str(deadHappiness/deadCount) + '<br>' 
+    returnMessage = returnMessage + 'Average number of children: ' + str(children/float(len(people))) + '<br>'    
+    returnMessage = returnMessage + 'Number of partnered people: ' + str(partners)  + '<br>' 
+    
+    #Perform a recursive search to find total number of generations
+    totalGenerations = 0 
+    for person in originalGeneration:
+        currGenerations = generationCount(person)
+        if currGenerations > totalGenerations:
+            totalGenerations = currGenerations
+    returnMessage = returnMessage + 'Number of generations: ' + str(totalGenerations)  + '<br>' 
+            
     return returnMessage
+
+#Function to determine the total number of generations descended from a given person
+def generationCount(person):
+    if not person.children:
+        return 1
+    if len(person.children) > 0:
+        return 1 + max(generationCount(person.lookupTable[child]) for child in person.children)
 
 
 if __name__ == '__main__':
