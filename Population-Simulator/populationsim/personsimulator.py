@@ -208,8 +208,6 @@ def processMultipleYears(numYears):
 
 @app.route('/generate/<int:numPeople>',methods=['GET'])
 def generatePeople(numPeople):
-    
-    
     people = []      
     logging.info('Generating ' + str(numPeople) + ' new people')
     for i in range(0,numPeople):        
@@ -222,6 +220,7 @@ def generatePeople(numPeople):
         return 'People generated successfully'
     except IOError as e:
         logging.error('Failed to write people file with error: ' + e)
+
     
 
 #Auditing function used to get basic data on the people file and check for data integrity

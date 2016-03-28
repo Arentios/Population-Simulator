@@ -7,6 +7,7 @@ import logging
 import shutil
 import constants
 import cPickle
+import os
 
 def savePeopleFile(people):
   
@@ -67,9 +68,13 @@ def auditPeopleFile():
 
 def emptyPeopleFile():
     try:
-        with open(constants.PEOPLE_FILE, 'w') as output:
+        with open(constants.PEOPLE_FILE, 'w'):
             pass
     except Exception as e:
         logging.error(e)
         return False
     return True
+
+def getPeopleFileSize():
+    fileinfo = os.stat(constants.PEOPLE_FILE)
+    return fileinfo.st_size
