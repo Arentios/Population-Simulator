@@ -49,5 +49,7 @@ Temporary Items
 # Compiled python files
 *.pyc
 
-#Log files
+#Log files and data files
 *.log
+*.dat
+*.dat.bak

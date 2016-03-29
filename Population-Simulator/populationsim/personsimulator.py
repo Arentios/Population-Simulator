@@ -98,8 +98,8 @@ def processYear(people):
     for person in list(peopleToProcess):
         #Very primitive check for death from old age/disease/failing health
         #TODO: Develop beyond simply abstract 'health' system
-        #Health applies a random factor both for semi-realism and to avoid a minimum age of health/2
-        if random.randint(1,100) * 2 < person.age - random.randint(1,person.attributes['health']):
+        #Health behaves as a percentage reduction in chance of death
+        if random.randint(1,200)  < person.age * (float((100-person.attributes['health']))/100):
             
             logging.info('Person ' + str(person.personId) + ' with age ' + str(person.age) + ' has died, their happiness was ' + str( person.happiness) + ' and they had ' + str(len(person.children)) + ' children')
             #If the person's parents are still alive reduce their happiness by 10, siblings by 5, partner by 20, children by 10
@@ -158,7 +158,7 @@ def processYear(people):
                     prospectivePartner.happiness = prospectivePartner.happiness + (random.randint(11,30))
                     possiblePartners.remove(person)
                     possiblePartners.remove(prospectivePartner)
-                    #Only one marriage per person at a time right now
+                    #Only one partner per person at a time right now
                     break
                     
         #Maybe create some children? All children come from partnered couples just because
@@ -239,14 +239,21 @@ def auditPeople():
     deadChildren = 0
     liveHappiness = 0
     originalGeneration = [] #List of people with no parents
+    originalHealth = 0
+    finalHealth = 0
+    finalGenerationCount = 0
     for person in people:
         if len(person.partner) > 1:
             returnMessage = returnMessage + 'Detected multiple partners, should not happen in the current version<br>'
         if not person.parents:
             originalGeneration.append(person)
+            originalHealth = originalHealth + person.attributes['health']
         parents = parents + len(person.parents)
         partners = partners + len(person.partner)
         children = children + len(person.children)
+        if not person.children and person.alive == True:
+            finalHealth = finalHealth + person.attributes['health']
+            finalGenerationCount = finalGenerationCount + 1
         if person.alive == False:
             deadHappiness = deadHappiness + person.happiness
             deadCount = deadCount + 1
@@ -269,7 +276,11 @@ def auditPeople():
         currGenerations = generationCount(person)
         if currGenerations > totalGenerations:
             totalGenerations = currGenerations
+            
     returnMessage = returnMessage + 'Number of generations: ' + str(totalGenerations)  + '<br>' 
+    returnMessage = returnMessage + 'Health of original generation: ' + str(originalHealth/len(originalGeneration))  + '<br>' 
+    returnMessage = returnMessage + 'Health of final generation: ' + str(finalHealth/finalGenerationCount)  + '<br>' 
+    
             
     return returnMessage
 
