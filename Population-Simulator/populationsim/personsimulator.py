@@ -14,14 +14,11 @@ NYI/TBD List:
 '''
 from flask import Flask
 import random
-import pickle
-import sys
 import uuid
-import shutil
 import logging
 import constants
 import filemanagement
-import traceback
+
 
 logging.basicConfig(filename=constants.LOG_FILE, level=logging.INFO)
 
@@ -61,29 +58,29 @@ class Person:
         
 
 @app.route('/restore', methods=['GET'])
-def restoreBackup():
-    if filemanagement.restorePeopleFile() == True:
+def restore_backup():
+    if filemanagement.restore_people_file() == True:
         return 'Successfully backed up people file'
     return 'Failed to backup people file'
 
 #Function to empty the person file
 @app.route('/empty', methods=['GET'])
-def emptyPeople():
+def empty_people():
     logging.info("Emptying person file")
-    if filemanagement.emptyPeopleFile() == True:
+    if filemanagement.empty_people_file() == True:
         return 'Successfully emptied people file'
     return 'Failed to empty people file'
     
 
 
 @app.route('/backup', methods=['GET'])
-def backupPeople():
-    if filemanagement.backupPeopleFile() == True:
+def backup_people():
+    if filemanagement.backup_people_file() == True:
         return 'Successfully backed up people file'
     return 'Failed to backup people file'
     
 #Process a list of people for a single year and return the results    
-def processYear(people):
+def process_year(people):
     logging.info('Processing people')
     logging.debug('Opening file')
     logging.info('Began processing year, number of people is ' + str(len(people)))
@@ -181,24 +178,24 @@ def processYear(people):
 
 
 @app.route('/process', methods=['GET'])
-def processSingleYear():
+def process_single_year():
     try:
-        people = filemanagement.loadPeopleFile()          
-        people = processYear(people)
-        filemanagement.savePeopleFile(people)
+        people = filemanagement.load_people_file()          
+        people = process_year(people)
+        filemanagement.save_people_file(people)
     except Exception as e:
         logging.error(e)
         return 'Failed to process'
     return 'Processed a single year'
                           
 @app.route('/process/<int:numYears>', methods=['GET'])
-def processMultipleYears(numYears):
+def process_multiple_years(numYears):
     try:
-        people = filemanagement.loadPeopleFile()      
+        people = filemanagement.load_people_file()      
         for i in range(0,numYears):
             logging.info('Processing year ' + str(i+1))
-            people = processYear(people)
-        filemanagement.savePeopleFile(people)
+            people = process_multiple_years(people)
+        filemanagement.save_people_file(people)
     except Exception as e:
         logging.error(e)
         return 'Failed to process'
@@ -207,7 +204,7 @@ def processMultipleYears(numYears):
 
 
 @app.route('/generate/<int:numPeople>',methods=['GET'])
-def generatePeople(numPeople):
+def generate_people(numPeople):
     people = []      
     logging.info('Generating ' + str(numPeople) + ' new people')
     for i in range(0,numPeople):        
@@ -216,7 +213,7 @@ def generatePeople(numPeople):
         
     logging.debug('Writing to file'  ) 
     try:
-        filemanagement.savePeopleFile(people)
+        filemanagement.save_people_file(people)
         return 'People generated successfully'
     except IOError as e:
         logging.error('Failed to write people file with error: ' + e)
@@ -225,8 +222,8 @@ def generatePeople(numPeople):
 
 #Auditing function used to get basic data on the people file and check for data integrity
 @app.route('/peopleInformation',methods=['GET'])
-def auditPeople():
-    people = filemanagement.loadPeopleFile()         
+def audit_people():
+    people = filemanagement.load_people_file()         
     returnMessage = 'Number of people in people file: ' + str(len(people)) + '<br>'
     #Nothing more to do if there's nobody in the people file
     if not people:
@@ -273,7 +270,7 @@ def auditPeople():
     #Perform a recursive search to find total number of generations
     totalGenerations = 0 
     for person in originalGeneration:
-        currGenerations = generationCount(person)
+        currGenerations = generation_count(person)
         if currGenerations > totalGenerations:
             totalGenerations = currGenerations
             
@@ -285,11 +282,11 @@ def auditPeople():
     return returnMessage
 
 #Function to determine the total number of generations descended from a given person
-def generationCount(person):
+def generation_count(person):
     if not person.children:
         return 1
     if len(person.children) > 0:
-        return 1 + max(generationCount(person.lookupTable[child]) for child in person.children)
+        return 1 + max(generation_count(person.lookupTable[child]) for child in person.children)
 
 
 if __name__ == '__main__':

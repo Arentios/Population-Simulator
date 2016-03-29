@@ -8,6 +8,11 @@ from beaker.cache import CacheManager
 from beaker.util import parse_cache_config_options
 
 cache_opts = {
-              'cache.type'}
+    'cache.type': 'file',
+    'cache.data_dir': '/cache/data',
+    'cache.lock_dir': '/cache/lock'
+}
 
+cache = CacheManager(**parse_cache_config_options(cache_opts))
 
+@cache.cache('get_people_data')

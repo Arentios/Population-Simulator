@@ -9,7 +9,7 @@ import constants
 import cPickle
 import os
 
-def savePeopleFile(people):
+def save_people_file(people):
   
     try:
         with open(constants.PEOPLE_FILE, 'w') as output:
@@ -19,7 +19,7 @@ def savePeopleFile(people):
         logging.error('Failed to write people file with error: ' + e)
         return False
 
-def loadPeopleFile():
+def load_people_file():
     people = []
     try:
         with open(constants.PEOPLE_FILE, 'r') as peopleInput:
@@ -47,7 +47,7 @@ def loadPeopleFile():
 
 
 
-def backupPeopleFile():
+def backup_people_file():
     try:
         shutil.copyfile(constants.PEOPLE_FILE, constants.PEOPLE_FILE+'.bak')
     except Exception as e:
@@ -55,7 +55,7 @@ def backupPeopleFile():
         return False
     return True
 
-def restorePeopleFile():
+def restore_people_file():
     try:
         shutil.copyfile(constants.PEOPLE_FILE+'.bak', constants.PEOPLE_FILE)
     except Exception as e:
@@ -63,10 +63,10 @@ def restorePeopleFile():
         return False
     return True
 
-def auditPeopleFile():
+def audit_people_file():
     pass
 
-def emptyPeopleFile():
+def empty_people_file():
     try:
         with open(constants.PEOPLE_FILE, 'w'):
             pass
@@ -75,6 +75,6 @@ def emptyPeopleFile():
         return False
     return True
 
-def getPeopleFileSize():
+def get_people_file_size():
     fileinfo = os.stat(constants.PEOPLE_FILE)
     return fileinfo.st_size
