@@ -105,7 +105,7 @@ def process_year(people):
                 
                 parent = Person.lookupTable[parentId]
                 if parent.alive == True:
-                    parent.happiness = parent.happiness - 10
+                    parent.happiness -= 10
                 #Figure out siblings by going up to parents and digging down a level
                 for siblingId in parent.children:
                     sibling = Person.lookupTable[siblingId]
@@ -113,15 +113,15 @@ def process_year(people):
                         #Subtract a random amount
                         #Full siblings will end up being counted twice, once per parent, half siblings only once
                         #Social commentary? Terrible assumption? Both? Probably but this is also straightforward to implement
-                        sibling.happiness = sibling.happiness - random.randint(1,5)
+                        sibling.happiness -= random.randint(1,5)
             for partnerId in person.partner:
                 partner = Person.lookupTable[partnerId]
                 if partner.alive == True:
-                    partner.happiness = partner.happiness - 20
+                    partner.happiness -= 20
             for childId in person.children:
                 child = Person.lookupTable[childId]
                 if child.alive == True:
-                    child.happiness = child.happiness - 10
+                    child.happiness -= 10
             #Finally remove the person from the list
             #TODO: Add the person to some historical data structure                       
             peopleToProcess.remove(person)
@@ -151,8 +151,8 @@ def process_year(people):
                     prospectivePartner.partner.append(person.personId)
                     logging.debug('Person ' + str(person.personId) + " has become partners with " + str(prospectivePartner.personId))
                     #Both people gain a variable amount of happiness with the average being slightly above what they'd lose if their partner dies
-                    person.happiness = person.happiness + (random.randint(11,30))
-                    prospectivePartner.happiness = prospectivePartner.happiness + (random.randint(11,30))
+                    person.happiness += random.randint(11,30)
+                    prospectivePartner.happiness += random.randint(11,30)
                     possiblePartners.remove(person)
                     possiblePartners.remove(prospectivePartner)
                     #Only one partner per person at a time right now
@@ -166,8 +166,8 @@ def process_year(people):
             child = Person(age=0, parents=[person.personId, secondParent.personId], happiness = person.happiness / 3 + secondParent.happiness /3 + random.randint(1,33),attributes={'health' :   person.attributes['health'] / 3 + secondParent.attributes['health'] /3 + random.randint(1,33)})
             people.append(child)
             #Both parents gain a variable amount of happiness with the average being slightly above what they'd lose if a child dies
-            person.happiness = person.happiness + (random.randint(1,20))
-            secondParent.happiness = secondParent.happiness + (random.randint(1,20))
+            person.happiness += random.randint(1,20)
+            secondParent.happiness += random.randint(1,20)
             person.children.append(child.personId)
             secondParent.children.append(child.personId)
         
@@ -241,31 +241,31 @@ def audit_people():
     finalGenerationCount = 0
     for person in people:
         if len(person.partner) > 1:
-            returnMessage = returnMessage + 'Detected multiple partners, should not happen in the current version<br>'
+            returnMessage += 'Detected multiple partners, should not happen in the current version<br>'
         if not person.parents:
             originalGeneration.append(person)
-            originalHealth = originalHealth + person.attributes['health']
-        parents = parents + len(person.parents)
-        partners = partners + len(person.partner)
-        children = children + len(person.children)
+            originalHealth += person.attributes['health']
+        parents += len(person.parents)
+        partners += len(person.partner)
+        children += len(person.children)
         if not person.children and person.alive == True:
-            finalHealth = finalHealth + person.attributes['health']
-            finalGenerationCount = finalGenerationCount + 1
+            finalHealth += person.attributes['health']
+            finalGenerationCount += 1
         if person.alive == False:
-            deadHappiness = deadHappiness + person.happiness
-            deadCount = deadCount + 1
-            deadChildren = deadChildren + len(person.children)
+            deadHappiness += person.happiness
+            deadCount += 1
+            deadChildren += len(person.children)
         else:
             liveHappiness = liveHappiness + person.happiness
     liveCount = len(people) - deadCount
-    returnMessage = returnMessage + 'Number of live people: ' + str(liveCount) + '<br>'                     
-    returnMessage = returnMessage + 'Number of dead people: ' + str(deadCount) + '<br>' 
-    returnMessage = returnMessage + 'Average number of children overall: ' + str(children/(len(people))) + '<br>'    
-    returnMessage = returnMessage + 'Average happiness of the living: ' + str(liveHappiness/liveCount) + '<br>' 
+    returnMessage += 'Number of live people: ' + str(liveCount) + '<br>'                     
+    returnMessage += 'Number of dead people: ' + str(deadCount) + '<br>' 
+    returnMessage += 'Average number of children overall: ' + str(children/(len(people))) + '<br>'    
+    returnMessage += 'Average happiness of the living: ' + str(liveHappiness/liveCount) + '<br>' 
     if deadCount > 0:
-        returnMessage = returnMessage + 'Average number of children for the dead: ' + str(deadChildren/deadCount) + '<br>' 
-        returnMessage = returnMessage + 'Average happiness of the dead: ' + str(deadHappiness/deadCount) + '<br>' 
-    returnMessage = returnMessage + 'Number of partnered people: ' + str(partners)  + '<br>' 
+        returnMessage += 'Average number of children for the dead: ' + str(deadChildren/deadCount) + '<br>' 
+        returnMessage += 'Average happiness of the dead: ' + str(deadHappiness/deadCount) + '<br>' 
+    returnMessage += 'Number of partnered people: ' + str(partners)  + '<br>' 
     
     #Perform a recursive search to find total number of generations
     totalGenerations = 0 
@@ -274,9 +274,9 @@ def audit_people():
         if currGenerations > totalGenerations:
             totalGenerations = currGenerations
             
-    returnMessage = returnMessage + 'Number of generations: ' + str(totalGenerations)  + '<br>' 
-    returnMessage = returnMessage + 'Health of original generation: ' + str(originalHealth/len(originalGeneration))  + '<br>' 
-    returnMessage = returnMessage + 'Health of final generation: ' + str(finalHealth/finalGenerationCount)  + '<br>' 
+    returnMessage += 'Number of generations: ' + str(totalGenerations)  + '<br>' 
+    returnMessage += 'Health of original generation: ' + str(originalHealth/len(originalGeneration))  + '<br>' 
+    returnMessage += 'Health of final generation: ' + str(finalHealth/finalGenerationCount)  + '<br>' 
     
             
     return returnMessage

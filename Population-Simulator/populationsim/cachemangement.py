@@ -1,6 +1,6 @@
 '''
 Created on Mar 23, 2016
-File to handle caching data and session management
+File to handle caching data
 NYI
 @author: Arentios
 '''
@@ -16,3 +16,4 @@ cache_opts = {
 cache = CacheManager(**parse_cache_config_options(cache_opts))
 
 @cache.cache('get_people_data')
+#def get_people_data
