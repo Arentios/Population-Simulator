@@ -100,7 +100,7 @@ def process_year(people):
         #Very primitive check for death from old age/disease/failing health
         #TODO: Develop beyond simply abstract 'health' system
         #Health behaves as a percentage reduction in chance of death
-        if random.randint(1,200)  < person.age * (float((100-person.attributes['health']))/100):
+        if random.randint(1,100)  < float(person.age/5) * (float((100-person.attributes['health']/2))/100):
             
             logging.info('Person ' + str(person.personId) + ' with age ' + str(person.age) + ' has died, their happiness was ' + str( person.happiness) + ' and they had ' + str(len(person.children)) + ' children')
             #If the person's parents are still alive reduce their happiness by 10, siblings by 5, partner by 20, children by 10
