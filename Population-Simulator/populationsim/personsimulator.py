@@ -19,6 +19,7 @@ import logging
 import constants
 import filemanagement
 import json
+import jsonpickle
 
 logging.basicConfig(filename=constants.LOG_FILE, level=logging.INFO)
 
@@ -205,12 +206,12 @@ def process_multiple_years(numYears):
         return 'Failed to process'
     return 'Processed ' + str(numYears) + ' years'
     
-    
+#function to convert person data to json using jsonpickle    
 @app.route('/data', methods=['GET'])
-def get_person_data():
+def get_person_data_pickle():
     try:
         people = filemanagement.load_people_file()   
-        returnValue = json.dumps(people, skipkeys=True)
+        returnValue = jsonpickle.encode(people)
         logging.debug(returnValue)
     except Exception as e:
         logging.error(e)
@@ -218,6 +219,9 @@ def get_person_data():
        # return json.dumps(e)
     return returnValue
 
+#function to convert person data to json via custom converter
+def get_person_data():
+    pass
 
 @app.route('/generate/<int:numPeople>',methods=['GET'])
 def generate_people(numPeople):
