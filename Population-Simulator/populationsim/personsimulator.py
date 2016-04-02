@@ -14,11 +14,11 @@ NYI/TBD List:
 '''
 from flask import Flask
 import random
-import uuid
+#import uuid
 import logging
 import constants
 import filemanagement
-
+import json
 
 logging.basicConfig(filename=constants.LOG_FILE, level=logging.INFO)
 
@@ -29,8 +29,10 @@ app = Flask(__name__)
 #This implementation is slightly less performant than using direct object links but only marginally
 class Person:
     lookupTable = {}
+    currentId = 1
     def __init__(self, age = -1, happiness = -1, attributes = {}, parents = [], children = [], partner = []):
-        self.personId = uuid.uuid1()
+        #self.personId = uuid.uuid1() No longer using UUIDs
+        self.personId = Person.currentId
         #Use -1 to indicate a generated person since 0 is for babies
         #Original ancestor, start them all at a decent age to kickstart the simulation
         if age == -1:
@@ -52,8 +54,10 @@ class Person:
         self.partner = list(partner)
         #Deceased people aren't removed but are used both for auditing and for maintaining genealogical relationships
         self.alive = True
-        #Add new person to the dictionary
-        self.lookupTable[self.personId] = self
+        #Add new person to the dictionary, technically for the dictionary we can just use self since it's not a primitive but for consistency we'll use Person for both
+        Person.lookupTable[self.personId] = self
+        Person.currentId = Person.currentId + 1
+
 
         
 
@@ -194,13 +198,25 @@ def process_multiple_years(numYears):
         people = filemanagement.load_people_file()      
         for i in range(0,numYears):
             logging.info('Processing year ' + str(i+1))
-            people = process_multiple_years(people)
+            people = process_year(people)
         filemanagement.save_people_file(people)
     except Exception as e:
         logging.error(e)
         return 'Failed to process'
     return 'Processed ' + str(numYears) + ' years'
     
+    
+@app.route('/data', methods=['GET'])
+def get_person_data():
+    try:
+        people = filemanagement.load_people_file()   
+        returnValue = json.dumps(people, skipkeys=True)
+        logging.debug(returnValue)
+    except Exception as e:
+        logging.error(e)
+        return 'Failed to get person data'
+       # return json.dumps(e)
+    return returnValue
 
 
 @app.route('/generate/<int:numPeople>',methods=['GET'])
@@ -239,6 +255,8 @@ def audit_people():
     originalHealth = 0
     finalHealth = 0
     finalGenerationCount = 0
+    oldestEver = 0
+    oldestAlive = 0
     for person in people:
         if len(person.partner) > 1:
             returnMessage += 'Detected multiple partners, should not happen in the current version<br>'
@@ -248,6 +266,8 @@ def audit_people():
         parents += len(person.parents)
         partners += len(person.partner)
         children += len(person.children)
+        if person.age > oldestEver:
+            oldestEver = person.age
         if not person.children and person.alive == True:
             finalHealth += person.attributes['health']
             finalGenerationCount += 1
@@ -256,7 +276,9 @@ def audit_people():
             deadCount += 1
             deadChildren += len(person.children)
         else:
-            liveHappiness = liveHappiness + person.happiness
+            liveHappiness += person.happiness
+            if person.age > oldestAlive:
+                oldestAlive = person.age
     liveCount = len(people) - deadCount
     returnMessage += 'Number of live people: ' + str(liveCount) + '<br>'                     
     returnMessage += 'Number of dead people: ' + str(deadCount) + '<br>' 
@@ -273,7 +295,8 @@ def audit_people():
         currGenerations = generation_count(person)
         if currGenerations > totalGenerations:
             totalGenerations = currGenerations
-            
+    returnMessage += 'Age of oldest person alive: ' + str(oldestAlive) + '<br>'
+    returnMessage += 'Age of oldest person ever: ' + str(oldestEver) + '<br>'
     returnMessage += 'Number of generations: ' + str(totalGenerations)  + '<br>' 
     returnMessage += 'Health of original generation: ' + str(originalHealth/len(originalGeneration))  + '<br>' 
     returnMessage += 'Health of final generation: ' + str(finalHealth/finalGenerationCount)  + '<br>' 

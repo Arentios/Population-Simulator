@@ -15,16 +15,16 @@ class TestPersonSimulator(unittest.TestCase):
     def test_file(self):
         self.assertTrue(filemanagement.backup_people_file(), 'People file failed to backup')
         self.assertTrue(filemanagement.empty_people_file(), 'People file failed to empty')
-        emptyFileSize = filemanagement.get_people_file_size()()
+        emptyFileSize = filemanagement.get_people_file_size()
         self.assertEqual(personsimulator.generate_people(1), 'People generated successfully', 'Failed to generate a single person')
-        singleFileSize = filemanagement.get_people_file_size()()
+        singleFileSize = filemanagement.get_people_file_size()
         self.assertGreater(singleFileSize, emptyFileSize, 'Single person file size not greater than empty')
-        self.assertTrue(filemanagement.load_people_file()(), 'Failed to load people file for a single person')
+        self.assertTrue(filemanagement.load_people_file(), 'Failed to load people file for a single person')
         self.assertEqual(personsimulator.generate_people(4), 'People generated successfully', 'Failed to generate multi run people file')
-        multifileSize = filemanagement.get_people_file_size()()
+        multifileSize = filemanagement.get_people_file_size()
         self.assertGreater(multifileSize, singleFileSize, 'Multi person file size not greater than single')
-        self.assertTrue(filemanagement.load_people_file()(), 'Failed to load multi run people file')
-        self.assertTrue(filemanagement.restore_people_file()(), 'Failed to restore backed up people file')
+        self.assertTrue(filemanagement.load_people_file(), 'Failed to load multi run people file')
+        self.assertTrue(filemanagement.restore_people_file(), 'Failed to restore backed up people file')
         
         
 

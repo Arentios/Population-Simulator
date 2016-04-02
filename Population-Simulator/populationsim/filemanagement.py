@@ -40,8 +40,12 @@ def load_people_file():
         logging.error('Failed to open people file with error: ' + e)
         return []
     #Add each person back to the lookup table
+    currId = 0  
     for person in people:
         person.lookupTable[person.personId] = person
+        if person.personId > currId:
+            currId = person.personId
+    person.currentId = currId        
     return people
 
 
