@@ -88,7 +88,7 @@ def backup_people():
 def process_year(people):
     logging.info('Processing people')
     logging.debug('Opening file')
-    logging.info('Began processing year, number of people is ' + str(len(people)))
+    logging.info('Began processing year, number of people=' + str(len(people)))
     #Iterate over a copy of the list of people since we may be deleting
     
     #Keep track of possible partners on an ongoing basis
@@ -96,14 +96,14 @@ def process_year(people):
     possiblePartners = []
     #Only process living people, the dead do not change
     peopleToProcess = [x for x in people if x.alive == True]
-    logging.info("Living people: " + str(len(peopleToProcess)))
+    logging.info("Living people=" + str(len(peopleToProcess)))
     for person in list(peopleToProcess):
         #Very primitive check for death from old age/disease/failing health
         #TODO: Develop beyond simply abstract 'health' system
         #Health behaves as a percentage reduction in chance of death
         if random.randint(1,100)  < float(person.age/5) * (float((100-person.attributes['health']/2))/100):
             
-            logging.info('Person ' + str(person.personId) + ' with age ' + str(person.age) + ' has died, their happiness was ' + str( person.happiness) + ' and they had ' + str(len(person.children)) + ' children')
+            logging.info('personId=' + str(person.personId) + ' with age=' + str(person.age) + ' has died, their happiness=' + str( person.happiness) + ' and they had number of children=' + str(len(person.children)))
             #If the person's parents are still alive reduce their happiness by 10, siblings by 5, partner by 20, children by 10
             #Don't remove data from those objects for future analysis or dumping. This does prevent re-partnering right now
             for parentId in person.parents:
@@ -136,7 +136,7 @@ def process_year(people):
             continue
         else:
             #If the person survived increment their age and check to see if they are valid to be added to the partner list
-            logging.debug('Person ' + str(person.personId) + ' survived, increasing age')
+            logging.debug('personId=' + str(person.personId) + ' survived, increasing age')
             person.age = person.age + 1
             #Slight happiness fluctuation per year
             person.happiness = person.happiness + random.randint(-3,3)
@@ -154,7 +154,7 @@ def process_year(people):
                 if  random.randint(1,100) < prospectivePartner.happiness and random.randint(1,2) > 1:
                     person.partner.append(prospectivePartner.personId)
                     prospectivePartner.partner.append(person.personId)
-                    logging.debug('Person ' + str(person.personId) + " has become partners with " + str(prospectivePartner.personId))
+                    logging.debug('personId=' + str(person.personId) + " has become partners with personId=" + str(prospectivePartner.personId))
                     #Both people gain a variable amount of happiness with the average being slightly above what they'd lose if their partner dies
                     person.happiness += random.randint(11,30)
                     prospectivePartner.happiness += random.randint(11,30)
@@ -176,9 +176,9 @@ def process_year(people):
             person.children.append(child.personId)
             secondParent.children.append(child.personId)
         
-            logging.debug('New child ' + str(child.personId) + ' born to ' + str(person.personId) + ' and ' + str(secondParent.personId))
+            logging.debug('New child with personId=' + str(child.personId) + ' born to personId=' + str(person.personId) + ' and personId=' + str(secondParent.personId))
         
-    logging.info('Completing processing year, number of people is ' + str(len(people)))
+    logging.info('Completing processing year, number of people=' + str(len(people)))
     return people
 
 
@@ -198,7 +198,7 @@ def process_multiple_years(numYears):
     try:
         people = filemanagement.load_people_file()      
         for i in range(0,numYears):
-            logging.info('Processing year ' + str(i+1))
+            logging.info('Processing year=' + str(i+1))
             people = process_year(people)
         filemanagement.save_people_file(people)
     except Exception as e:
