@@ -13,13 +13,14 @@ NYI/TBD List:
 @author: Eric Marshall
 '''
 from flask import Flask
+from flask import request
 import random
-#import uuid
 import logging
 import constants
 import filemanagement
-import json
 import jsonpickle
+import json
+from pip._vendor.pkg_resources import null_ns_handler
 
 logging.basicConfig(filename=constants.LOG_FILE, level=logging.INFO)
 
@@ -128,7 +129,7 @@ def process_year(people):
                 if child.alive == True:
                     child.happiness -= 10
             #Finally remove the person from the list
-            #TODO: Add the person to some historical data structure                       
+            #TODO: Add the person to some historical data structure to better separate living and dead to allow for more efficient processing                  
             peopleToProcess.remove(person)
             person.alive = False
             
@@ -207,7 +208,6 @@ def process_multiple_years(numYears):
     return 'Processed ' + str(numYears) + ' years'
     
 #function to convert person data to json using jsonpickle    
-@app.route('/data', methods=['GET'])
 def get_person_data_pickle():
     try:
         people = filemanagement.load_people_file()   
@@ -216,8 +216,25 @@ def get_person_data_pickle():
     except Exception as e:
         logging.error(e)
         return 'Failed to get person data'
-       # return json.dumps(e)
     return returnValue
+
+
+def decode_person(data):
+    if 'personId' in data and data['personId'] > 0:
+        return json.JSONDecoder
+
+#Function to receive posted Person data and write it to the data file
+def receive_person_data(request):
+    data = request.json
+    print data
+    
+@app.route('/data', methods=['GET', 'POST'])
+def process_data_request():
+    if request.method == 'GET':
+        return get_person_data_pickle()
+    if request.method == 'POST':
+        receive_person_data(request)
+
 
 #function to convert person data to json via custom converter
 def get_person_data():
@@ -238,7 +255,8 @@ def generate_people(numPeople):
     except IOError as e:
         logging.error('Failed to write people file with error: ' + e)
 
-    
+
+
 
 #Auditing function used to get basic data on the people file and check for data integrity
 @app.route('/peopleInformation',methods=['GET'])
