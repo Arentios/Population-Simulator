@@ -20,7 +20,7 @@ import constants
 import filemanagement
 import jsonpickle
 import json
-from pip._vendor.pkg_resources import null_ns_handler
+
 
 logging.basicConfig(filename=constants.LOG_FILE, level=logging.INFO)
 
